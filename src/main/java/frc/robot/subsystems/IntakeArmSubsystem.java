@@ -24,7 +24,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
     private final SparkMax motor;
 
     private final DutyCycleEncoder encoder = new DutyCycleEncoder(0);
-    private final PIDController lifterPid = new PIDController(0.01, 0, 0);
+    private final PIDController Pid = new PIDController(1.15, 0, 0);
 
     private final double MIN_DEGREE = -0.388300284707507;
     private final double MAX_DEGREE = 0.368803809220095;
@@ -36,23 +36,48 @@ public class IntakeArmSubsystem extends SubsystemBase {
                 .inverted(true)
                 .idleMode(IdleMode.kBrake);
         this.motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        SmartDashboard.putNumber("IntakeArm encoder", this.encoder.get());
+
     }
 
-    public void execute() {
-        this.motor.set(0.1);
+    public void execute(double speed) {
+        if (this.MIN_DEGREE >= this.encoder.get() && this.MAX_DEGREE <= this.encoder.get()) {
+            this.motor.set(speed);
+            SmartDashboard.putNumber("IntakeArm encoder", this.encoder.get());
+        } else if (this.MIN_DEGREE > this.encoder.get() && this.MAX_DEGREE >= this.encoder.get()) {
+            this.motor.set(speed);
+            SmartDashboard.putNumber("IntakeArm encoder", this.encoder.get());
+        } else if (this.MIN_DEGREE < this.encoder.get() && this.MAX_DEGREE <= this.encoder.get()) {
+            this.motor.set(speed);
+            SmartDashboard.putNumber("IntakeArm encoder", this.encoder.get());
+        } else {
+            this.motor.set(0);
+            SmartDashboard.putNumber("IntakeArm encoder", this.encoder.get());
+        }
     }
 
-    public void executeback() {
-        this.motor.set(-0.1);
+    public void ArmTo(double angle) {
+        double speed = MathUtil.applyDeadband((this.Pid.calculate(angle, this.encoder.get())),
+                Constants.Drive.DEAD_BAND);
+        this.execute(speed);
     }
 
     public Command Up() {
-        return Commands.runEnd(this::execute, this::stop, this);
+        return new WaitUntilCommand(() -> this.encoder.get() <= this.MIN_DEGREE + 0.05);
+        // WaitCommand 條件判斷式，直到 true 才會結束。"->"Lambda 表達式
     }
 
     public Command Down() {
-        return Commands.runEnd(this::executeback, this::stop, this);
+        return new WaitUntilCommand(() -> this.encoder.get() >= this.MAX_DEGREE + 0.05);
+    }
+
+    public Command AutoUp() {
+        return new ParallelDeadlineGroup(this.AutoUp(),
+                Commands.runEnd(() -> this.ArmTo(MAX_DEGREE), this::stop, this));
+    }
+
+    public Command AutoDown() {
+        return new ParallelDeadlineGroup(this.AutoDown(),
+                Commands.runEnd(() -> this.ArmTo(MIN_DEGREE), this::stop, this));
     }
 
     public void stop() {

@@ -18,7 +18,7 @@ public class RobotContainer {
         private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
         private final IntakeArmSubsystem intakeArmSubsystem = new IntakeArmSubsystem();
 
-        private final Driver driver = new Driver();
+        private final Controller driver = new Controller();
 
         private final DriveCmd driveJoystickCmd = new DriveCmd(driveSubsystem, driver);
 
@@ -37,18 +37,17 @@ public class RobotContainer {
                 this.driver.Intake()
                                 .whileTrue(this.intakeSubsystem.Cmdexecute());
                 this.driver.AutoIntake()
-                                //.onTrue(Commands
-                                                //.runOnce(this.intakeArmSubsystem::AutoDown,
-                                                  //              this.intakeArmSubsystem)
-                                                //.andThen(this.intakeSubsystem.autoCmdexecute()))
-                               // .onFalse(new ParallelRaceGroup(
-                                 //               Commands.runEnd(this.intakeSubsystem::Cmdexecuteback,
-                                     //                           this.intakeSubsystem::stop,
-                                   //                             this.intakeSubsystem),
-                                       //         new WaitCommand(1.5))
-                                         //       .andThen(Commands.runOnce(this.intakeArmSubsystem::AutoUp,
-                                           //                     this.intakeArmSubsystem)));
-                                           .whileTrue(this.intakeSubsystem.Cmdexecuteback());
+                                .whileTrue(Commands
+                                                .runOnce(this.intakeArmSubsystem::Down,
+                                                                this.intakeArmSubsystem)
+                                                .andThen(this.intakeSubsystem.autoCmdexecute()))
+                                .whileFalse(new ParallelRaceGroup(
+                                                Commands.runEnd(this.intakeSubsystem::Cmdexecuteback,
+                                                                this.intakeSubsystem::stop,
+                                                                this.intakeSubsystem),
+                                                new WaitCommand(1.5))
+                                                .andThen(Commands.runOnce(this.intakeArmSubsystem::Up,
+                                                                this.intakeArmSubsystem)));
                 this.driver.IntakeArmUp()
                                 .whileTrue(this.intakeArmSubsystem.Up());
                 this.driver.IntakeArmDown()
