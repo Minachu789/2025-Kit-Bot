@@ -32,26 +32,16 @@ public class RobotContainer {
         public void configBindings() {
                 this.driver.Putter()
                                 .whileTrue(this.putterSubsystem.Cmdexecute());
-                this.driver.PutterCorrection()
-                                .whileTrue(this.putterSubsystem.CmdexecuteCorrection());
-                this.driver.Intake()
-                                .whileTrue(this.intakeSubsystem.Cmdexecute());
-                this.driver.AutoIntake()
-                                .whileTrue(Commands
-                                                .runOnce(this.intakeArmSubsystem::Down,
-                                                                this.intakeArmSubsystem)
-                                                .andThen(this.intakeSubsystem.autoCmdexecute()))
-                                .whileFalse(new ParallelRaceGroup(
-                                                Commands.runEnd(this.intakeSubsystem::Cmdexecuteback,
-                                                                this.intakeSubsystem::stop,
-                                                                this.intakeSubsystem),
-                                                new WaitCommand(1.5))
-                                                .andThen(Commands.runOnce(this.intakeArmSubsystem::Up,
-                                                                this.intakeArmSubsystem)));
-                this.driver.IntakeArmUp()
-                                .whileTrue(this.intakeArmSubsystem.Up());
+                this.driver.PutterIn()
+                                .whileTrue(this.putterSubsystem.CmdexecuteIn());
                 this.driver.IntakeArmDown()
-                                .whileTrue(this.intakeArmSubsystem.Down());
+                                .whileTrue(this.intakeArmSubsystem.Down()
+                                                .alongWith(this.intakeSubsystem.Cmdexecuteback()))
+                                .whileFalse(this.intakeArmSubsystem.Up());
+                this.driver.IntakeArmUp()
+                                .whileTrue(this.intakeArmSubsystem.Up()
+                                                .alongWith(this.intakeSubsystem.Cmdexecute()))
+                                .whileFalse(this.intakeArmSubsystem.Down());
         }
 
         public Command getAutonomousCommand() {

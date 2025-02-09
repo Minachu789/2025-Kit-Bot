@@ -30,14 +30,14 @@ public class PutterSubsystem extends SubsystemBase {
     public void execute() {
         this.motor.set(Constants.Controller.Subsystemspeed);
     }
-    public void executeCorrection(){
+    public void executeIn(){
         this.motor.set(-Constants.Controller.Subsystemspeed);
     }
     public Command Cmdexecute(){
         return new ParallelRaceGroup(Commands.runEnd(this::execute, this::stop, this));
     }
-    public Command CmdexecuteCorrection(){
-        return Commands.runEnd(this::executeCorrection, this::stop, this);
+    public Command CmdexecuteIn(){
+        return Commands.runEnd(this::executeIn, this::stop, this);
     }
     public void stop() {
         this.motor.stopMotor();

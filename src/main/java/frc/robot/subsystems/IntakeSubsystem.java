@@ -36,19 +36,14 @@ public class IntakeSubsystem extends SubsystemBase {
         this.motor.set(-0.3);
     }
 
-    public Command autoCmdexecute() {
-        return new ParallelRaceGroup(
-                Commands.runEnd(this::execute, this::stop, this),
-                new WaitCommand(3));
-    }
-
     public Command Cmdexecute() {
         return Commands.runEnd(this::execute, this::stop, this);
     }
 
-    public Command Cmdexecuteback(){
+    public Command Cmdexecuteback() {
         return Commands.runEnd(this::executeback, this::stop, this);
     }
+
     public void stop() {
         this.motor.stopMotor();
     }
