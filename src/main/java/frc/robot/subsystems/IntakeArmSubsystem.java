@@ -13,9 +13,7 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 import frc.robot.Constants;
 import frc.robot.DeviceId;
@@ -26,8 +24,8 @@ public class IntakeArmSubsystem extends SubsystemBase {
     private final DutyCycleEncoder encoder = new DutyCycleEncoder(0);
     private final PIDController Pid = new PIDController(1.15, 0, 0);
 
-    private final double MIN_DEGREE = -0.388300284707507;
-    private final double MAX_DEGREE = 0.368803809220095;
+    private final double MIN_DEGREE = 0.764257944106449;
+    private final double MAX_DEGREE = 0.559715463992887;
 
     public IntakeArmSubsystem() {
         this.motor = new SparkMax(DeviceId.controller.IntakeArm, MotorType.kBrushless);
@@ -62,22 +60,11 @@ public class IntakeArmSubsystem extends SubsystemBase {
     }
 
     public Command Up() {
-        return new WaitUntilCommand(() -> this.encoder.get() <= this.MIN_DEGREE + 0.05);
-        // WaitCommand 條件判斷式，直到 true 才會結束。"->"Lambda 表達式
+        return Commands.runEnd(() -> this.ArmTo(MAX_DEGREE), this::stop, this);
     }
 
     public Command Down() {
-        return new WaitUntilCommand(() -> this.encoder.get() >= this.MAX_DEGREE + 0.05);
-    }
-
-    public Command AutoUp() {
-        return new ParallelDeadlineGroup(this.AutoUp(),
-                Commands.runEnd(() -> this.ArmTo(MAX_DEGREE), this::stop, this));
-    }
-
-    public Command AutoDown() {
-        return new ParallelDeadlineGroup(this.AutoDown(),
-                Commands.runEnd(() -> this.ArmTo(MIN_DEGREE), this::stop, this));
+        return Commands.runEnd(() -> this.ArmTo(MIN_DEGREE), this::stop, this);
     }
 
     public void stop() {

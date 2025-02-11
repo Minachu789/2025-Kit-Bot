@@ -2,9 +2,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 
 import frc.robot.commands.DriveCmd;
 import frc.robot.subsystems.DriveSubsystem;
@@ -35,13 +32,13 @@ public class RobotContainer {
                 this.driver.PutterIn()
                                 .whileTrue(this.putterSubsystem.CmdexecuteIn());
                 this.driver.IntakeArmDown()
-                                .whileTrue(this.intakeArmSubsystem.Down()
+                                .onTrue(this.intakeArmSubsystem.Down()
                                                 .alongWith(this.intakeSubsystem.Cmdexecuteback()))
-                                .whileFalse(this.intakeArmSubsystem.Up());
+                                .onFalse(this.intakeArmSubsystem.Up());
                 this.driver.IntakeArmUp()
-                                .whileTrue(this.intakeArmSubsystem.Up()
+                                .onTrue(this.intakeArmSubsystem.Up()
                                                 .alongWith(this.intakeSubsystem.Cmdexecute()))
-                                .whileFalse(this.intakeArmSubsystem.Down());
+                                .onFalse(this.intakeArmSubsystem.Down());
         }
 
         public Command getAutonomousCommand() {
