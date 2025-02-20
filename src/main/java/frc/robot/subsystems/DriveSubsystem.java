@@ -4,20 +4,19 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.MotorReverse;
 import frc.robot.DeviceId.DriveMotor;
 
 public class DriveSubsystem extends SubsystemBase {
-    private final DriveModule frontLeft;
-    private final DriveModule frontRight;
-    private final DriveModule backLeft;
-    private final DriveModule backRight;
+    private final DriveModule Left = new DriveModule(DriveMotor.FRONT_LEFT, MotorReverse.FRONT_LEFT,
+            DriveMotor.BACK_LEFT, MotorReverse.BACK_LEFT);
+    private final DriveModule Right = new DriveModule(DriveMotor.FRONT_RIGHT, MotorReverse.FRONT_RIGHT,
+            DriveMotor.BACK_RIGHT, MotorReverse.BACK_RIGHT);
 
-    private final PIDController LefPidController = new PIDController(0.01, 0.0, 0.0);
-    private final PIDController RighPidController = new PIDController(0.01, 0.0, 0.0);
+    private final PIDController LefPidController = new PIDController(0.0005, 0.0, 0.0);
+    private final PIDController RighPidController = new PIDController(0.0005, 0.0, 0.0);
     private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(1.0, 0.5, 0.1);
 
     private double timestates;
@@ -25,10 +24,7 @@ public class DriveSubsystem extends SubsystemBase {
     private final double KOP_WHEEL = 0.0672;
 
     public DriveSubsystem() {
-        this.frontLeft = new DriveModule(DriveMotor.FRONT_LEFT, MotorReverse.FRONT_LEFT);
-        this.frontRight = new DriveModule(DriveMotor.FRONT_RIGHT, MotorReverse.FRONT_RIGHT);
-        this.backLeft = new DriveModule(DriveMotor.BACK_LEFT, MotorReverse.BACK_LEFT);
-        this.backRight = new DriveModule(DriveMotor.BACK_RIGHT, MotorReverse.BACK_RIGHT);
+
     }
 
     public void updateTime() {
@@ -37,19 +33,19 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public double getLeftSpeed() {
-        return this.backLeft.getVelocity() / 60 / 13.5 * KOP_WHEEL * 2 * Math.PI;
+        return this.Left.getVelocity() / 2 / 60 / 13.5 * KOP_WHEEL * 2 * Math.PI;
     }
 
     public double getRightSpeed() {
-        return this.backRight.getVelocity() / 60 / 13.5 * KOP_WHEEL * 2 * Math.PI;
+        return this.Right.getVelocity() / 2 / 60 / 13.5 * KOP_WHEEL * 2 * Math.PI;
     }
 
     public double leftEncoder() {
-        return (this.backLeft.getVelocity() + this.frontLeft.getVelocity()) / 2;
+        return Left.getVelocity();
     }
 
     public double rightEncoder() {
-        return (this.backRight.getVelocity()) + this.frontRight.getVelocity() / 2;
+        return Right.getVelocity();
     }
 
     public void execute(double leftSetpoint, double rightSetpoint) {
@@ -68,22 +64,14 @@ public class DriveSubsystem extends SubsystemBase {
         leftVoltage = MathUtil.clamp(leftVoltage, -12.0, 12.0);
         rightVoltage = MathUtil.clamp(rightVoltage, -12.0, 12.0);
 
-        this.backLeft.setVoltage(leftVoltage);
-        this.frontLeft.setVoltage(leftVoltage);
-        this.backRight.setVoltage(rightVoltage);
-        this.frontRight.setVoltage(rightVoltage);
-
-        SmartDashboard.putNumber("leftvelocity", leftvelocity);
-        SmartDashboard.putNumber("rightvelocity", rightvelocity);
-        SmartDashboard.putNumber("leftSetpoint", leftSetpoint);
-        SmartDashboard.putNumber("rightSetpoint", rightSetpoint);
+        this.Left.setVoltage(leftVoltage);
+        this.Right.setVoltage(rightVoltage);
     }
 
     public void stopModules() {
-        this.frontLeft.stop();
-        this.frontRight.stop();
-        this.backLeft.stop();
-        this.backRight.stop();
+        this.Left.stop();
+        this.Right.stop();
+
     }
 
     @Override

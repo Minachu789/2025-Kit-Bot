@@ -21,8 +21,8 @@ public class DriveCmd extends Command {
 
     @Override
     public void execute() {
-        double driveSpeed = MathUtil.applyDeadband(this.controller.getLeftY(), Drive.DEAD_BAND) * Drive.MAX_SPEED;
-        double turnSpeed = MathUtil.applyDeadband(this.controller.getLeftX(), Drive.DEAD_BAND) * Drive.MAX_TURN_SPEED;
+        double driveSpeed = MathUtil.applyDeadband(this.controller.getLeftY(), Drive.DEAD_BAND) * -1 * Drive.MAX_SPEED;
+        double turnSpeed = MathUtil.applyDeadband(this.controller.getRightX(), Drive.DEAD_BAND) * -1* Drive.MAX_TURN_SPEED;
 
         double leftSpeed = driveSpeed - turnSpeed;
         double rightSpeed = driveSpeed + turnSpeed;
