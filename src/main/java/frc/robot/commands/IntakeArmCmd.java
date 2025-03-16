@@ -22,8 +22,8 @@ public class IntakeArmCmd extends Command {
 
 	@Override
 	public void execute() {
-	// 	double speed = MathUtil.applyDeadband(this.controller.getLeftY(), Constants.Drive.DEAD_BAND) * 0.2;
-	// 	this.intakeArmSubsystem.execute(speed);
+		double speed = MathUtil.applyDeadband(this.controller.getLeftY(), Constants.Drive.DEAD_BAND) * 0.2;
+		this.intakeArmSubsystem.execute(speed);
 	}
 
 	@Override

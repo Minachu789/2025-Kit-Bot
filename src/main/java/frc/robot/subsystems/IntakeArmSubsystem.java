@@ -9,6 +9,9 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,7 +24,9 @@ public class IntakeArmSubsystem extends SubsystemBase {
     private final SparkMax motor;
 
     private final DutyCycleEncoder encoder = new DutyCycleEncoder(0);
-    private final PIDController IntakeArmPId = new PIDController(1.15, 0, 0);
+    // private final PIDController IntakeArmPId = new PIDController(1.15, 0, 0);
+    private final Constraints intakepidConstraints = new TrapezoidProfile.Constraints(10,20);
+    private final ProfiledPIDController IntakeArmPId = new ProfiledPIDController(1.5, 0, 0, intakepidConstraints, 0.02);
 
     private final double MIN_DEGREE = 0.52792321319808;
     private final double MAX_DEGREE = 0.319051807976295;
@@ -54,7 +59,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
 
     public void ArmTo(double angle) {
         double speed = MathUtil.applyDeadband(this.IntakeArmPId.calculate(this.encoder.get(), angle),
-                0.01);
+                0.05);
         this.motor.set(speed);
         SmartDashboard.putNumber("IntakeArm encoder", this.encoder.get());
     }
